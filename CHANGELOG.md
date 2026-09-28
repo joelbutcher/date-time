@@ -6,6 +6,7 @@
 
 - `Clock` has a new method, `withTimeZone(TimeZone): ZonedClock`: custom `Clock` implementations must implement it
 - `brick/date-time` now requires `psr/clock`
+- `DefaultClock` has been removed: methods such as `now()` use a `SystemClock` when no clock is provided. To control the time in tests, inject a `Clock` and pass it to these methods; the `freeze()`, `travelTo()`, `travelBy()` and `scale()` shortcuts can be replaced with `FixedClock`, `OffsetClock` and `ScaleClock`
 
 ✨ **New features**
 

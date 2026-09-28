@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brick\DateTime;
 
+use Brick\DateTime\Clock\SystemClock;
 use JsonSerializable;
 use Override;
 use Stringable;
@@ -76,7 +77,7 @@ final readonly class Instant implements JsonSerializable, Stringable
     public static function now(?Clock $clock = null): Instant
     {
         if ($clock === null) {
-            $clock = DefaultClock::get();
+            $clock = new SystemClock();
         }
 
         return $clock->getTime();

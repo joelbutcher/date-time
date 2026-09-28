@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Brick\DateTime;
 
+use Brick\DateTime\Clock\SystemClock;
+
 /**
  * Measures the time elapsed.
  */
@@ -24,12 +26,12 @@ final class Stopwatch
     private ?Instant $startTime = null;
 
     /**
-     * @param Clock|null $clock An optional clock to use.
+     * @param Clock|null $clock An optional clock to use. If no clock is provided, the system clock is used.
      */
     public function __construct(?Clock $clock = null)
     {
         if ($clock === null) {
-            $clock = DefaultClock::get();
+            $clock = new SystemClock();
         }
 
         $this->clock = $clock;

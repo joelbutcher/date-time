@@ -10,7 +10,7 @@ use Brick\DateTime\TimeZone;
 use Brick\DateTime\ZonedClock;
 
 /**
- * This clock returns the system time. It is the default clock.
+ * This clock returns the system time. It is used when no clock is provided.
  *
  * This clock has a microsecond precision on most systems.
  */
