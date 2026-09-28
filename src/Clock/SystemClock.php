@@ -7,7 +7,7 @@ namespace Brick\DateTime\Clock;
 use Brick\DateTime\Clock;
 use Brick\DateTime\Instant;
 use Brick\DateTime\TimeZone;
-use DateTimeImmutable;
+use Brick\DateTime\ZonedClock;
 
 /**
  * This clock returns the system time. It is the default clock.
@@ -16,16 +16,6 @@ use DateTimeImmutable;
  */
 final class SystemClock implements Clock
 {
-    private readonly TimeZone $timeZone;
-
-    /**
-     * @param TimeZone|null $timeZone The time zone of the dates returned by now(), defaults to UTC.
-     */
-    public function __construct(?TimeZone $timeZone = null)
-    {
-        $this->timeZone = $timeZone ?? TimeZone::utc();
-    }
-
     #[\Override]
     public function getTime(): Instant
     {
@@ -38,8 +28,8 @@ final class SystemClock implements Clock
     }
 
     #[\Override]
-    public function now(): DateTimeImmutable
+    public function withTimeZone(TimeZone $timeZone): ZonedClock
     {
-        return $this->getTime()->atTimeZone($this->timeZone)->toNativeDateTimeImmutable();
+        return new ZonedClock($this, $timeZone);
     }
 }

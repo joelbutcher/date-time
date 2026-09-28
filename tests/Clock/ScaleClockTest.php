@@ -40,7 +40,7 @@ class ScaleClockTest extends AbstractTestCase
         self::assertSame($expectedInstant, $actualTime->toDecimal());
     }
 
-    public function testNow(): void
+    public function testWithTimeZone(): void
     {
         $baseInstant = Instant::of(1000000, 123456789);
 
@@ -49,25 +49,12 @@ class ScaleClockTest extends AbstractTestCase
 
         $baseClock->setTime($baseInstant->plus(Duration::parse('PT5M30.9S')));
 
-        $now = $scaleClock->now();
+        $timeZone = TimeZone::parse('Asia/Tokyo');
+        $zonedClock = $scaleClock->withTimeZone($timeZone);
 
-        self::assertSame('996360.223456', $now->format('U.u'));
-        self::assertSame(0, $now->getOffset());
-    }
-
-    public function testNowUsesReferenceClockTimeZone(): void
-    {
-        $baseInstant = Instant::of(1000000, 123456789);
-
-        $baseClock = new FixedClock($baseInstant, TimeZone::parse('Asia/Tokyo'));
-        $scaleClock = new ScaleClock($baseClock, -11);
-
-        $baseClock->setTime($baseInstant->plus(Duration::parse('PT5M30.9S')));
-
-        $now = $scaleClock->now();
-
-        self::assertSame('1970-01-12T21:46:00.223456+09:00', $now->format('Y-m-d\TH:i:s.uP'));
-        self::assertSame('Asia/Tokyo', $now->getTimezone()->getName());
+        self::assertSame($scaleClock, $zonedClock->getClock());
+        self::assertSame($timeZone, $zonedClock->getTimeZone());
+        self::assertSame('1970-01-12T21:46:00.223456789+09:00[Asia/Tokyo]', $zonedClock->getCurrentZonedDateTime()->toISOString());
     }
 
     public static function providerScaleClock(): array

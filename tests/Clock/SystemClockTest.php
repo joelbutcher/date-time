@@ -32,22 +32,15 @@ namespace Brick\DateTime\Tests\Clock
             self::assertInstantIs(14079491701, 555276000, $clock->getTime());
         }
 
-        public function testNow(): void
+        public function testWithTimeZone(): void
         {
             $clock = new SystemClock();
-            $now = $clock->now();
+            $timeZone = TimeZone::parse('Asia/Tokyo');
+            $zonedClock = $clock->withTimeZone($timeZone);
 
-            self::assertSame('14079491701.555276', $now->format('U.u'));
-            self::assertSame(0, $now->getOffset());
-        }
-
-        public function testNowWithTimeZone(): void
-        {
-            $clock = new SystemClock(TimeZone::parse('Asia/Tokyo'));
-            $now = $clock->now();
-
-            self::assertSame('14079491701.555276', $now->format('U.u'));
-            self::assertSame('Asia/Tokyo', $now->getTimezone()->getName());
+            self::assertSame($clock, $zonedClock->getClock());
+            self::assertSame($timeZone, $zonedClock->getTimeZone());
+            self::assertInstantIs(14079491701, 555276000, $zonedClock->getTime());
         }
     }
 }
