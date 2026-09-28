@@ -121,11 +121,15 @@ final readonly class ZonedDateTime implements JsonSerializable, Stringable
     /**
      * Returns the current date-time in the given time-zone, according to the given clock.
      *
-     * If no clock is provided, the system clock is used.
+     * If no time-zone is provided, the time-zone of the clock is used if it is a ZonedClock, or UTC otherwise.
      */
-    public static function now(TimeZone $timeZone, ?Clock $clock = null): ZonedDateTime
+    public static function now(Clock $clock, ?TimeZone $timeZone = null): ZonedDateTime
     {
-        return ZonedDateTime::ofInstant(Instant::now($clock), $timeZone);
+        if ($timeZone === null) {
+            $timeZone = $clock instanceof ZonedClock ? $clock->getTimeZone() : TimeZone::utc();
+        }
+
+        return ZonedDateTime::ofInstant($clock->getTime(), $timeZone);
     }
 
     /**
@@ -664,20 +668,16 @@ final readonly class ZonedDateTime implements JsonSerializable, Stringable
 
     /**
      * Returns whether this ZonedDateTime is in the future, according to the given clock.
-     *
-     * If no clock is provided, the system clock is used.
      */
-    public function isFuture(?Clock $clock = null): bool
+    public function isFuture(Clock $clock): bool
     {
         return $this->instant->isFuture($clock);
     }
 
     /**
      * Returns whether this ZonedDateTime is in the past, according to the given clock.
-     *
-     * If no clock is provided, the system clock is used.
      */
-    public function isPast(?Clock $clock = null): bool
+    public function isPast(Clock $clock): bool
     {
         return $this->instant->isPast($clock);
     }

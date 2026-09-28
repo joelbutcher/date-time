@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brick\DateTime;
 
-use Brick\DateTime\Clock\SystemClock;
 use JsonSerializable;
 use Override;
 use Stringable;
@@ -74,12 +73,11 @@ final readonly class Instant implements JsonSerializable, Stringable
         return $epoch ??= new Instant(0, 0);
     }
 
-    public static function now(?Clock $clock = null): Instant
+    /**
+     * Returns the current instant, according to the given clock.
+     */
+    public static function now(Clock $clock): Instant
     {
-        if ($clock === null) {
-            $clock = new SystemClock();
-        }
-
         return $clock->getTime();
     }
 
@@ -286,20 +284,16 @@ final readonly class Instant implements JsonSerializable, Stringable
 
     /**
      * Returns whether this instant is in the future, according to the given clock.
-     *
-     * If no clock is provided, the system clock is used.
      */
-    public function isFuture(?Clock $clock = null): bool
+    public function isFuture(Clock $clock): bool
     {
         return $this->isAfter(Instant::now($clock));
     }
 
     /**
      * Returns whether this instant is in the past, according to the given clock.
-     *
-     * If no clock is provided, the system clock is used.
      */
-    public function isPast(?Clock $clock = null): bool
+    public function isPast(Clock $clock): bool
     {
         return $this->isBefore(Instant::now($clock));
     }

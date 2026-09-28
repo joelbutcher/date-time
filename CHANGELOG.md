@@ -6,7 +6,12 @@
 
 - `Clock` has a new method, `withTimeZone(TimeZone): ZonedClock`: custom `Clock` implementations must implement it
 - `brick/date-time` now requires `psr/clock`
-- `DefaultClock` has been removed: methods such as `now()` use a `SystemClock` when no clock is provided. To control the time in tests, inject a `Clock` and pass it to these methods; the `freeze()`, `travelTo()`, `travelBy()` and `scale()` shortcuts can be replaced with `FixedClock`, `OffsetClock` and `ScaleClock`
+- `DefaultClock` has been removed. To control the time in tests, inject a `Clock` and pass it to methods such as `now()`; the `freeze()`, `travelTo()`, `travelBy()` and `scale()` shortcuts can be replaced with `FixedClock`, `OffsetClock` and `ScaleClock`
+- The `Clock` is now required, and comes first, in all methods that read the current time. The `TimeZone` is now optional, and comes second:
+  - `now(TimeZone $timeZone, ?Clock $clock = null)` becomes `now(Clock $clock, ?TimeZone $timeZone = null)` on `DayOfWeek`, `LocalDate`, `LocalDateTime`, `LocalTime`, `MonthDay`, `Quarter`, `Year`, `YearMonth`, `YearWeek` and `ZonedDateTime`
+  - `LocalDateTime::isFuture()` and `isPast()` become `isFuture(Clock $clock, ?TimeZone $timeZone = null)` and `isPast(Clock $clock, ?TimeZone $timeZone = null)`
+  - `Instant::now()`, `Instant::isFuture()`, `Instant::isPast()`, `ZonedDateTime::isFuture()`, `ZonedDateTime::isPast()` and the `Stopwatch` constructor now require a `Clock`
+  - when no `TimeZone` is provided, the time zone of the clock is used if it is a `ZonedClock`, or UTC otherwise; an explicit `TimeZone` always takes precedence over the time zone of a `ZonedClock`
 
 ✨ **New features**
 

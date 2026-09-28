@@ -16,6 +16,7 @@ use Brick\DateTime\Parser\DateTimeParseException;
 use Brick\DateTime\Period;
 use Brick\DateTime\TimeZone;
 use Brick\DateTime\TimeZoneOffset;
+use Brick\DateTime\ZonedClock;
 use Brick\DateTime\ZonedDateTime;
 use DateTime;
 use DateTimeImmutable;
@@ -984,6 +985,38 @@ class ZonedDateTimeTest extends AbstractTestCase
 
         self::assertTrue($incluZonedDateTime->isBetweenExclusive($fromZonedDateTime, $toZonedDateTime));
         self::assertFalse($fromZonedDateTime->isBetweenExclusive($fromZonedDateTime, $toZonedDateTime));
+    }
+
+    public function testNow(): void
+    {
+        $clock = new FixedClock(Instant::of(1000000000, 123456789));
+        $now = ZonedDateTime::now($clock, TimeZone::parse('Asia/Tokyo'));
+
+        self::assertSame('2001-09-09T10:46:40.123456789+09:00[Asia/Tokyo]', $now->toISOString());
+    }
+
+    public function testNowDefaultsToUtc(): void
+    {
+        $clock = new FixedClock(Instant::of(1000000000, 123456789));
+        $now = ZonedDateTime::now($clock);
+
+        self::assertSame('2001-09-09T01:46:40.123456789Z', $now->toISOString());
+    }
+
+    public function testNowWithZonedClock(): void
+    {
+        $zonedClock = new ZonedClock(new FixedClock(Instant::of(1000000000, 123456789)), TimeZone::parse('Asia/Tokyo'));
+        $now = ZonedDateTime::now($zonedClock);
+
+        self::assertSame('2001-09-09T10:46:40.123456789+09:00[Asia/Tokyo]', $now->toISOString());
+    }
+
+    public function testNowTimeZoneTakesPrecedenceOverZonedClock(): void
+    {
+        $zonedClock = new ZonedClock(new FixedClock(Instant::of(1000000000, 123456789)), TimeZone::parse('Asia/Tokyo'));
+        $now = ZonedDateTime::now($zonedClock, TimeZone::parse('America/Los_Angeles'));
+
+        self::assertSame('2001-09-08T18:46:40.123456789-07:00[America/Los_Angeles]', $now->toISOString());
     }
 
     #[DataProvider('providerForPastFuture')]

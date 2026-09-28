@@ -60,7 +60,8 @@ class LocalDateTimeTest extends AbstractTestCase
     {
         $clock = new FixedClock(Instant::of($second, $nano));
         $timeZone = TimeZoneOffset::ofTotalSeconds($offset);
-        self::assertLocalDateTimeIs($y, $m, $d, $h, $i, $s, $n, LocalDateTime::now($timeZone, $clock));
+        self::assertLocalDateTimeIs($y, $m, $d, $h, $i, $s, $n, LocalDateTime::now($clock, $timeZone));
+        self::assertLocalDateTimeIs($y, $m, $d, $h, $i, $s, $n, LocalDateTime::now($clock->withTimeZone($timeZone)));
     }
 
     public static function providerNow(): array
@@ -1112,7 +1113,8 @@ class LocalDateTimeTest extends AbstractTestCase
         $clock = new FixedClock(Instant::of($clockTimestamp));
         $localDateTime = LocalDateTime::parse($localDateTime);
         $timeZone = TimeZoneOffset::parse($offset);
-        self::assertSame($isFuture, $localDateTime->isFuture($timeZone, $clock));
+        self::assertSame($isFuture, $localDateTime->isFuture($clock, $timeZone));
+        self::assertSame($isFuture, $localDateTime->isFuture($clock->withTimeZone($timeZone)));
     }
 
     #[DataProvider('providerForPastFuture')]
@@ -1121,7 +1123,8 @@ class LocalDateTimeTest extends AbstractTestCase
         $clock = new FixedClock(Instant::of($clockTimestamp));
         $localDateTime = LocalDateTime::parse($localDateTime);
         $timeZone = TimeZoneOffset::parse($offset);
-        self::assertSame(! $isFuture, $localDateTime->isPast($timeZone, $clock));
+        self::assertSame(! $isFuture, $localDateTime->isPast($clock, $timeZone));
+        self::assertSame(! $isFuture, $localDateTime->isPast($clock->withTimeZone($timeZone)));
     }
 
     public static function providerForPastFuture(): array

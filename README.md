@@ -88,16 +88,22 @@ All objects read the current time from a `Clock` implementation. The following i
 
 These classes belong to the `Brick\DateTime\Clock` namespace.
 
-All methods that read the current time, such as `now()`, accept an optional `Clock`. If no clock is provided, the system clock is used:
+All methods that read the current time, such as `now()`, require a `Clock`. Methods that return a date or time also accept an optional `TimeZone`:
 
 ```php
+use Brick\DateTime\Clock\SystemClock;
 use Brick\DateTime\LocalDate;
 use Brick\DateTime\TimeZone;
 
-echo LocalDate::now(TimeZone::utc()); // 2017-10-04
+$clock = new SystemClock();
+
+echo LocalDate::now($clock, TimeZone::parse('America/New_York')); // 2017-10-04
+echo LocalDate::now($clock); // today in UTC
 ```
 
-To make your application testable, inject a `Clock` in your services, and pass it to these methods:
+If no time zone is provided, the time zone of the clock is used if it's a `ZonedClock` (see [Zoned clocks](#zoned-clocks)), or UTC otherwise.
+
+Inject a `Clock` in your services, and pass it to these methods:
 
 ```php
 use Brick\DateTime\Clock;
@@ -113,7 +119,7 @@ final class InvoiceService
 
     public function getDueDate(TimeZone $timeZone): LocalDate
     {
-        return LocalDate::now($timeZone, $this->clock)->plusDays(30);
+        return LocalDate::now($this->clock, $timeZone)->plusDays(30);
     }
 }
 ```
@@ -192,6 +198,16 @@ echo $clock->getCurrentLocalTime(); // 14:03:25.123456
 ```
 
 This is useful in applications that deal with a single time zone: inject a `ZonedClock` in your services, and configure its time zone once. Applications that deal with multiple time zones can inject a `Clock` instead, and provide the time zone every time.
+
+Methods such as `now()` use the time zone of a `ZonedClock` when no time zone is provided:
+
+```php
+use Brick\DateTime\LocalDate;
+use Brick\DateTime\TimeZone;
+
+echo LocalDate::now($clock); // today in Paris, same as $clock->getCurrentLocalDate()
+echo LocalDate::now($clock, TimeZone::parse('America/New_York')); // today in New York: an explicit time zone always wins
+```
 
 `ZonedClock` also implements [PSR-20](https://www.php-fig.org/psr/psr-20/), so it can be used wherever a `Psr\Clock\ClockInterface` is expected. Its `now()` method returns a `DateTimeImmutable` in the clock's time zone.
 

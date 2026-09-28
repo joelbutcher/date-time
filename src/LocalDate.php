@@ -213,11 +213,11 @@ final readonly class LocalDate implements JsonSerializable, Stringable
     /**
      * Returns the current date in the given time-zone, according to the given clock.
      *
-     * If no clock is provided, the system clock is used.
+     * If no time-zone is provided, the time-zone of the clock is used if it is a ZonedClock, or UTC otherwise.
      */
-    public static function now(TimeZone $timeZone, ?Clock $clock = null): LocalDate
+    public static function now(Clock $clock, ?TimeZone $timeZone = null): LocalDate
     {
-        return ZonedDateTime::now($timeZone, $clock)->getDate();
+        return ZonedDateTime::now($clock, $timeZone)->getDate();
     }
 
     /**

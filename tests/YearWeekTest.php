@@ -372,9 +372,10 @@ class YearWeekTest extends AbstractTestCase
     {
         $now = new FixedClock(Instant::of(2000000000));
         $timeZone = TimeZone::parse('Asia/Taipei');
-        $yearWeek = YearWeek::now($timeZone, $now);
+        $yearWeek = YearWeek::now($now, $timeZone);
 
         self::assertYearWeekIs(2033, 20, $yearWeek);
+        self::assertYearWeekIs(2033, 20, YearWeek::now($now->withTimeZone($timeZone)));
     }
 
     /**

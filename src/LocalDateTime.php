@@ -53,11 +53,11 @@ final readonly class LocalDateTime implements JsonSerializable, Stringable
     /**
      * Returns the current local date-time in the given time-zone, according to the given clock.
      *
-     * If no clock is provided, the system clock is used.
+     * If no time-zone is provided, the time-zone of the clock is used if it is a ZonedClock, or UTC otherwise.
      */
-    public static function now(TimeZone $timeZone, ?Clock $clock = null): LocalDateTime
+    public static function now(Clock $clock, ?TimeZone $timeZone = null): LocalDateTime
     {
-        return ZonedDateTime::now($timeZone, $clock)->getDateTime();
+        return ZonedDateTime::now($clock, $timeZone)->getDateTime();
     }
 
     /**
@@ -687,21 +687,21 @@ final readonly class LocalDateTime implements JsonSerializable, Stringable
     /**
      * Returns whether this LocalDateTime is in the future, in the given time-zone, according to the given clock.
      *
-     * If no clock is provided, the system clock is used.
+     * If no time-zone is provided, the time-zone of the clock is used if it is a ZonedClock, or UTC otherwise.
      */
-    public function isFuture(TimeZone $timeZone, ?Clock $clock = null): bool
+    public function isFuture(Clock $clock, ?TimeZone $timeZone = null): bool
     {
-        return $this->isAfter(LocalDateTime::now($timeZone, $clock));
+        return $this->isAfter(LocalDateTime::now($clock, $timeZone));
     }
 
     /**
      * Returns whether this LocalDateTime is in the past, in the given time-zone, according to the given clock.
      *
-     * If no clock is provided, the system clock is used.
+     * If no time-zone is provided, the time-zone of the clock is used if it is a ZonedClock, or UTC otherwise.
      */
-    public function isPast(TimeZone $timeZone, ?Clock $clock = null): bool
+    public function isPast(Clock $clock, ?TimeZone $timeZone = null): bool
     {
-        return $this->isBefore(LocalDateTime::now($timeZone, $clock));
+        return $this->isBefore(LocalDateTime::now($clock, $timeZone));
     }
 
     /**
