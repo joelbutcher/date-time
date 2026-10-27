@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brick\DateTime;
 
+use Brick\DateTime\Clock\FixedClock;
 use Override;
 
 /**
@@ -23,6 +24,17 @@ final readonly class ZonedClock implements Clock
         private Clock $clock,
         private TimeZone $timeZone,
     ) {
+    }
+
+    /**
+     * Returns a clock fixed at the given date-time, in its time zone.
+     *
+     * This is a shortcut for `new ZonedClock(new FixedClock($dateTime->getInstant()), $dateTime->getTimeZone())`,
+     * typically used for testing.
+     */
+    public static function fixed(ZonedDateTime $dateTime): ZonedClock
+    {
+        return new ZonedClock(new FixedClock($dateTime->getInstant()), $dateTime->getTimeZone());
     }
 
     /**

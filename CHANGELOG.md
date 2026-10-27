@@ -28,6 +28,7 @@
 - New class `ZonedClock`, which wraps a `Clock` and a `TimeZone`:
   - `getZonedDateTime()`, `getLocalDateTime()`, `getLocalDate()` and `getLocalTime()` return the current date and time in its time zone
   - `atTimeZone()` returns a copy in another time zone
+  - `ZonedClock::fixed(ZonedDateTime)` returns a clock fixed at the given date-time, in its time zone
 - All built-in clocks can be bound to a time zone with `atTimeZone()`, e.g. `(new SystemClock())->atTimeZone(TimeZone::utc())`
 - New method `Instant::parse()`, which parses an ISO 8601 date-time with an offset, such as `2026-10-10T08:00:00Z`
 

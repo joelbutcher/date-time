@@ -144,9 +144,20 @@ use Brick\DateTime\Clock\FixedClock;
 use Brick\DateTime\Instant;
 use Brick\DateTime\TimeZone;
 
-$clock = (new FixedClock(Instant::of(1000000000)))->atTimeZone(TimeZone::utc());
+$clock = (new FixedClock(Instant::parse('2001-09-09T01:46:40Z')))->atTimeZone(TimeZone::utc());
 
 echo $clock->getLocalDate(); // 2001-09-09
+```
+
+If you don't need to move the clock, `ZonedClock::fixed()` is a shortcut that creates the `FixedClock` for you, from a `ZonedDateTime`:
+
+```php
+use Brick\DateTime\ZonedClock;
+use Brick\DateTime\ZonedDateTime;
+
+$clock = ZonedClock::fixed(ZonedDateTime::parse('2026-10-10T08:00+01:00[Europe/London]'));
+
+echo $clock->getLocalDateTime(); // 2026-10-10T08:00
 ```
 
 Travel to a specific point in time, but allow time to continue moving forward from there:

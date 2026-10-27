@@ -8,6 +8,7 @@ use Brick\DateTime\Clock\FixedClock;
 use Brick\DateTime\Instant;
 use Brick\DateTime\TimeZone;
 use Brick\DateTime\ZonedClock;
+use Brick\DateTime\ZonedDateTime;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -35,6 +36,17 @@ class ZonedClockTest extends AbstractTestCase
         $clock->move(60);
 
         self::assertInstantIs(1000000060, 123456789, $zonedClock->getInstant());
+    }
+
+    public function testFixed(): void
+    {
+        $dateTime = ZonedDateTime::parse('2026-10-10T08:00+01:00[Europe/London]');
+        $zonedClock = ZonedClock::fixed($dateTime);
+
+        self::assertInstanceOf(FixedClock::class, $zonedClock->getClock());
+        self::assertSame($dateTime->getTimeZone(), $zonedClock->getTimeZone());
+        self::assertSame('2026-10-10T08:00:00+01:00[Europe/London]', $zonedClock->getZonedDateTime()->toISOString());
+        self::assertInstantIs(1791615600, 0, $zonedClock->getInstant());
     }
 
     public function testAtTimeZone(): void
