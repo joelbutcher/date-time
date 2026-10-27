@@ -445,8 +445,8 @@ final readonly class LocalDate implements JsonSerializable, Stringable
     public function plusPeriod(Period $period): LocalDate
     {
         return $this
-            ->plusYears($period->getYears())
-            ->plusMonths($period->getMonths())
+            // Not plusYears()->plusMonths(), which would clamp Feb 29 twice: 2020-02-29 + P1Y1M would give 2021-03-28.
+            ->plusMonths($period->getYears() * 12 + $period->getMonths())
             ->plusDays($period->getDays());
     }
 
@@ -612,6 +612,10 @@ final readonly class LocalDate implements JsonSerializable, Stringable
      */
     public function compareTo(LocalDate $that): int
     {
+        if ($this === $that) {
+            return 0;
+        }
+
         if ($this->year < $that->year) {
             return -1;
         }
@@ -636,7 +640,7 @@ final readonly class LocalDate implements JsonSerializable, Stringable
 
     public function isEqualTo(LocalDate $that): bool
     {
-        return $this->compareTo($that) === 0;
+        return $this === $that || $this->compareTo($that) === 0;
     }
 
     public function isBefore(LocalDate $that): bool

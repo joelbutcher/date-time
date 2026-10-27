@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## UNRELEASED (0.11.0)
 
 💥 **Breaking changes**
 
+- `ZonedDateTime::parse()` now throws a `DateTimeException` when the offset is not valid for the region, instead of silently replacing it (#140 by @gnutix)
 - `Clock::getTime()` has been renamed to `getInstant()`
 - `Clock` has a new method, `atTimeZone(TimeZone): ZonedClock`: custom `Clock` implementations must implement it
 - `DefaultClock` has been removed: inject a `Clock` or `ZonedClock` instead, and use `FixedClock`, `OffsetClock` or `ScaleClock` in tests
@@ -31,6 +32,36 @@
   - `ZonedClock::fixed(ZonedDateTime)` returns a clock fixed at the given date-time, in its time zone
 - All built-in clocks can be bound to a time zone with `atTimeZone()`, e.g. `(new SystemClock())->atTimeZone(TimeZone::utc())`
 - New method `Instant::parse()`, which parses an ISO 8601 date-time with an offset, such as `2026-10-10T08:00:00Z`
+
+🐛 **Bug fixes**
+
+- `plusPeriod()` on `LocalDate`, `LocalDateTime` and `ZonedDateTime` now adds the years and months in one step, fixing wrong results from Feb 29 (#141 by @gnutix)
+- `LocalDateTime::plusDuration()` and `minusDuration()` did not move the date when the nanos carry crossed midnight (#142 by @gnutix)
+- `ZonedDateTime::parse()` ignored the offset when a region was present (#140 by @gnutix)
+
+## [0.10.4](https://github.com/brick/date-time/releases/tag/0.10.4) - 2026-10-09
+
+🐛 **Bug fixes**
+
+- Fix `LocalDateTime::plusNanos()` and `minusNanos()` within the same second (#136 by @gnutix)
+
+## [0.10.3](https://github.com/brick/date-time/releases/tag/0.10.3) - 2026-10-08
+
+🐛 **Bug fixes**
+
+- `ZonedDateTime::of()` and `LocalDateTime::atTimeZone()` failed for years beyond `9999` (#135 by @gnutix)
+- `toNativeDateTime()` and `toNativeDateTimeImmutable()` on `LocalDateTime` and `ZonedDateTime` failed for years beyond `9999` and negative years (#135 by @gnutix)
+- `ZonedDateTime::toNativeDateTime()` and `toNativeDateTimeImmutable()` returned the wrong offset during a DST overlap (#135 by @gnutix)
+
+⚡️ **Performance optimizations**
+
+- Faster `ZonedDateTime::of()`, `ofInstant()` and `toNativeDateTime()`, and `TimeZoneOffset::toNativeDateTimeZone()` for UTC (#135 by @gnutix)
+
+## [0.10.2](https://github.com/brick/date-time/releases/tag/0.10.2) - 2026-10-05
+
+⚡️ **Performance optimizations**
+
+- Object-identity short-circuit in `isEqualTo()` and `compareTo()` (#130 by @gnutix)
 
 ## [0.10.1](https://github.com/brick/date-time/releases/tag/0.10.1) - 2026-10-03
 

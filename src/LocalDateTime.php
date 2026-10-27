@@ -384,7 +384,7 @@ final readonly class LocalDateTime implements JsonSerializable, Stringable
     /**
      * Returns a zoned date-time formed from this date-time and the specified time-zone.
      *
-     * @param TimeZone $zone The zime-zone to use.
+     * @param TimeZone $zone The time-zone to use.
      *
      * @return ZonedDateTime The zoned date-time formed from this date-time.
      */
@@ -416,7 +416,10 @@ final readonly class LocalDateTime implements JsonSerializable, Stringable
             return $this;
         }
 
-        $days = Math::floorDiv($this->time->toSecondOfDay() + $duration->getSeconds(), LocalTime::SECONDS_PER_DAY);
+        $seconds = $this->time->toSecondOfDay() + $duration->getSeconds()
+            + intdiv($this->time->getNano() + $duration->getNanos(), LocalTime::NANOS_PER_SECOND);
+
+        $days = Math::floorDiv($seconds, LocalTime::SECONDS_PER_DAY);
 
         return new LocalDateTime($this->date->plusDays($days), $this->time->plusDuration($duration));
     }
@@ -640,6 +643,10 @@ final readonly class LocalDateTime implements JsonSerializable, Stringable
      */
     public function compareTo(LocalDateTime $that): int
     {
+        if ($this === $that) {
+            return 0;
+        }
+
         $cmp = $this->date->compareTo($that->date);
 
         if ($cmp !== 0) {
@@ -651,7 +658,7 @@ final readonly class LocalDateTime implements JsonSerializable, Stringable
 
     public function isEqualTo(LocalDateTime $that): bool
     {
-        return $this->compareTo($that) === 0;
+        return $this === $that || $this->compareTo($that) === 0;
     }
 
     public function isBefore(LocalDateTime $that): bool
@@ -767,7 +774,9 @@ final readonly class LocalDateTime implements JsonSerializable, Stringable
         $newSoD = Math::floorMod($totSeconds, LocalTime::SECONDS_PER_DAY);
 
         $newDate = $this->date->plusDays($totDays);
-        $newTime = ($newSoD === $curSoD ? $this->time : LocalTime::ofSecondOfDay($newSoD, $newNano));
+        $newTime = ($newSoD === $curSoD && $newNano === $this->time->getNano())
+            ? $this->time
+            : LocalTime::ofSecondOfDay($newSoD, $newNano);
 
         return new LocalDateTime($newDate, $newTime);
     }

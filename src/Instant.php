@@ -233,6 +233,10 @@ final readonly class Instant implements JsonSerializable, Stringable
      */
     public function compareTo(Instant $that): int
     {
+        if ($this === $that) {
+            return 0;
+        }
+
         $seconds = $this->getEpochSecond() - $that->getEpochSecond();
 
         if ($seconds !== 0) {
@@ -253,7 +257,7 @@ final readonly class Instant implements JsonSerializable, Stringable
      */
     public function isEqualTo(Instant $that): bool
     {
-        return $this->compareTo($that) === 0;
+        return $this === $that || $this->compareTo($that) === 0;
     }
 
     /**

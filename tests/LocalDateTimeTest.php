@@ -620,55 +620,53 @@ class LocalDateTimeTest extends AbstractTestCase
             [2001, 2, 3,  0,  30,  50, 2003,  9, 22],
             [2001, 2, 3,  0,   0, -30, 2001,  1,  4],
             [2001, 2, 3,  0, -30, -50, 1998,  6, 14],
+            [2020, 2, 29, 1,   0,   0, 2021,  2, 28],
+            [2020, 2, 29, 1,   1,   0, 2021,  3, 29],
+            [2020, 2, 29, 1,  -1,   0, 2021,  1, 29],
+            [2020, 2, 29, 1,   6,   0, 2021,  8, 29],
+            [2020, 2, 29, -1, -1,   0, 2019,  1, 29],
+            [999995, 2, 26, 5, -29, 5, 999997, 10, 1],
         ];
     }
 
     /**
-     * @param int $ds The seconds of the duration.
-     * @param int $dn The nano adjustment of the duration.
-     * @param int $y  The expected year.
-     * @param int $m  The expected month.
-     * @param int $d  The expected day.
-     * @param int $h  The expected hour.
-     * @param int $i  The expected minute.
-     * @param int $s  The expected second.
-     * @param int $n  The expected nano.
+     * @param string $dateTime         The base date-time string.
+     * @param int    $seconds          The seconds of the duration.
+     * @param int    $nanos            The nano adjustment of the duration.
+     * @param string $expectedDateTime The expected resulting date-time string.
      */
     #[DataProvider('providerDuration')]
-    public function testPlusDuration(int $ds, int $dn, int $y, int $m, int $d, int $h, int $i, int $s, int $n): void
+    public function testPlusDuration(string $dateTime, int $seconds, int $nanos, string $expectedDateTime): void
     {
-        $localDateTime = LocalDate::of(2001, 2, 3)->atTime(LocalTime::of(4, 5, 6, 123456789));
-        $duration = Duration::ofSeconds($ds, $dn);
-        self::assertLocalDateTimeIs($y, $m, $d, $h, $i, $s, $n, $localDateTime->plusDuration($duration));
+        $actualDateTime = LocalDateTime::parse($dateTime)->plusDuration(Duration::ofSeconds($seconds, $nanos));
+        self::assertSame($expectedDateTime, (string) $actualDateTime);
     }
 
     /**
-     * @param int $ds The seconds of the duration.
-     * @param int $dn The nano adjustment of the duration.
-     * @param int $y  The expected year.
-     * @param int $m  The expected month.
-     * @param int $d  The expected day.
-     * @param int $h  The expected hour.
-     * @param int $i  The expected minute.
-     * @param int $s  The expected second.
-     * @param int $n  The expected nano.
+     * @param string $dateTime         The base date-time string.
+     * @param int    $seconds          The seconds of the duration, negated before being subtracted.
+     * @param int    $nanos            The nano adjustment of the duration, negated before being subtracted.
+     * @param string $expectedDateTime The expected resulting date-time string.
      */
     #[DataProvider('providerDuration')]
-    public function testMinusDuration(int $ds, int $dn, int $y, int $m, int $d, int $h, int $i, int $s, int $n): void
+    public function testMinusDuration(string $dateTime, int $seconds, int $nanos, string $expectedDateTime): void
     {
-        $localDateTime = LocalDate::of(2001, 2, 3)->atTime(LocalTime::of(4, 5, 6, 123456789));
-        $duration = Duration::ofSeconds(-$ds, -$dn);
-        self::assertLocalDateTimeIs($y, $m, $d, $h, $i, $s, $n, $localDateTime->minusDuration($duration));
+        $actualDateTime = LocalDateTime::parse($dateTime)->minusDuration(Duration::ofSeconds(-$seconds, -$nanos));
+        self::assertSame($expectedDateTime, (string) $actualDateTime);
     }
 
     public static function providerDuration(): array
     {
         return [
-            [71692, 2000000000, 2001, 2, 4, 0, 0, 0, 123456789],
-            [123456, 2000000000, 2001, 2, 4, 14, 22, 44, 123456789],
-            [7654321, 1999999999, 2001, 5, 2, 18, 17, 9, 123456788],
-            [-654321, -987654321, 2001, 1, 26, 14, 19, 44, 135802468],
-            [-7654321, 2013456789, 2000, 11, 6, 13, 53, 7, 136913578],
+            ['2001-02-03T04:05:06.123456789', 71692, 2_000_000_000, '2001-02-04T00:00:00.123456789'],
+            ['2001-02-03T04:05:06.123456789', 123456, 2_000_000_000, '2001-02-04T14:22:44.123456789'],
+            ['2001-02-03T04:05:06.123456789', 7654321, 1_999_999_999, '2001-05-02T18:17:09.123456788'],
+            ['2001-02-03T04:05:06.123456789', -654321, -987_654_321, '2001-01-26T14:19:44.135802468'],
+            ['2001-02-03T04:05:06.123456789', -7654321, 2_013_456_789, '2000-11-06T13:53:07.136913578'],
+            ['2001-02-03T04:05:06.123456789', 71693, 900_000_000, '2001-02-04T00:00:00.023456789'],
+            ['2001-02-03T04:05:06.123456789', -14707, 900_000_000, '2001-02-03T00:00:00.023456789'],
+            ['2000-01-01T23:59:59.5', 0, 600_000_000, '2000-01-02T00:00:00.1'],
+            ['2000-01-01T00:00:00.5', 0, -400_000_000, '2000-01-01T00:00:00.1'],
         ];
     }
 
@@ -838,6 +836,9 @@ class LocalDateTimeTest extends AbstractTestCase
             ['2014-12-31T23:59:58.5', 1500000000, '2015-01-01T00:00'],
             ['2000-03-01T00:00', -1, '2000-02-29T23:59:59.999999999'],
             ['2000-01-01T00:00:01', -1999999999, '1999-12-31T23:59:59.000000001'],
+            ['2000-01-01T12:34:56', 1, '2000-01-01T12:34:56.000000001'],
+            ['2000-01-01T12:34:56.5', -1, '2000-01-01T12:34:56.499999999'],
+            ['2000-01-01T12:34:56.5', 86400000000001, '2000-01-02T12:34:56.500000001'],
         ];
     }
 
@@ -1007,6 +1008,9 @@ class LocalDateTimeTest extends AbstractTestCase
             ['2014-12-31T23:59:59.5', -500000000, '2015-01-01T00:00'],
             ['2001-03-01T00:00', 1, '2001-02-28T23:59:59.999999999'],
             ['2000-01-01T00:00:00', 999999999, '1999-12-31T23:59:59.000000001'],
+            ['2000-01-01T12:34:56.5', 1, '2000-01-01T12:34:56.499999999'],
+            ['2000-01-01T12:34:56.5', -1, '2000-01-01T12:34:56.500000001'],
+            ['2000-01-02T12:34:56.5', 86400000000001, '2000-01-01T12:34:56.499999999'],
         ];
     }
 
@@ -1030,6 +1034,10 @@ class LocalDateTimeTest extends AbstractTestCase
             ['1960-04-30T06:00:00.123456', '+02:00', -305236800, 123456000],
             ['2008-01-02T12:34:56', 'Europe/Paris', 1199273696, 0],
             ['2008-01-02T12:34:56.123', 'America/Los_Angeles', 1199306096, 123000000],
+            ['10000-01-01T00:00', 'Z', 253402300800, 0],
+            ['999999-12-31T23:59:59.999999999', 'Z', 31494784780799, 999999999],
+            ['-999999-01-01T00:00', 'Z', -31619087596800, 0],
+            ['10000-07-01T12:00:00.123', 'Europe/Paris', 253418061600, 123000000],
         ];
     }
 
@@ -1051,6 +1059,14 @@ class LocalDateTimeTest extends AbstractTestCase
         self::assertSame($result === -1, $dateTime1->isBefore($dateTime2));
         self::assertSame($result >= 0, $dateTime1->isAfterOrEqualTo($dateTime2));
         self::assertSame($result <= 0, $dateTime1->isBeforeOrEqualTo($dateTime2));
+    }
+
+    public function testCompareToSameInstance(): void
+    {
+        $dateTime = LocalDateTime::of(2015, 6, 15, 12, 30, 45);
+
+        self::assertSame(0, $dateTime->compareTo($dateTime));
+        self::assertTrue($dateTime->isEqualTo($dateTime));
     }
 
     public static function providerCompareTo(): array
@@ -1112,6 +1128,9 @@ class LocalDateTimeTest extends AbstractTestCase
             ['2011-07-31T23:59:59',           '2011-07-31T23:59:59.000000+0000'],
             ['2011-07-31T23:59:59.02',        '2011-07-31T23:59:59.020000+0000'],
             ['2011-07-31T23:59:59.000123456', '2011-07-31T23:59:59.000123+0000'],
+            ['-0001-01-01T00:00',             '-0001-01-01T00:00:00.000000+0000'],
+            ['10000-01-01T00:00',             '10000-01-01T00:00:00.000000+0000'],
+            ['999999-12-31T23:59:59.999999999', '999999-12-31T23:59:59.999999+0000'],
         ];
     }
 

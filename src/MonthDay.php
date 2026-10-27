@@ -115,6 +115,10 @@ final readonly class MonthDay implements JsonSerializable, Stringable
      */
     public function compareTo(MonthDay $that): int
     {
+        if ($this === $that) {
+            return 0;
+        }
+
         if ($this->month < $that->month) {
             return -1;
         }
@@ -136,7 +140,7 @@ final readonly class MonthDay implements JsonSerializable, Stringable
      */
     public function isEqualTo(MonthDay $that): bool
     {
-        return $this->compareTo($that) === 0;
+        return $this === $that || $this->compareTo($that) === 0;
     }
 
     /**

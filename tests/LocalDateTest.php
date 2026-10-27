@@ -957,6 +957,12 @@ class LocalDateTest extends AbstractTestCase
             [2001, 2, 3,  0,  30,  50, 2003,  9, 22],
             [2001, 2, 3,  0,   0, -30, 2001,  1,  4],
             [2001, 2, 3,  0, -30, -50, 1998,  6, 14],
+            [2020, 2, 29, 1,   0,   0, 2021,  2, 28],
+            [2020, 2, 29, 1,   1,   0, 2021,  3, 29],
+            [2020, 2, 29, 1,  -1,   0, 2021,  1, 29],
+            [2020, 2, 29, 1,   6,   0, 2021,  8, 29],
+            [2020, 2, 29, -1, -1,   0, 2019,  1, 29],
+            [999995, 2, 26, 5, -29, 5, 999997, 10, 1],
         ];
     }
 
@@ -1605,6 +1611,14 @@ class LocalDateTest extends AbstractTestCase
         self::assertSame($cmp === 1, $date1->isAfter($date2));
         self::assertSame($cmp <= 0, $date1->isBeforeOrEqualTo($date2));
         self::assertSame($cmp >= 0, $date1->isAfterOrEqualTo($date2));
+    }
+
+    public function testCompareToSameInstance(): void
+    {
+        $date = LocalDate::of(2015, 6, 15);
+
+        self::assertSame(0, $date->compareTo($date));
+        self::assertTrue($date->isEqualTo($date));
     }
 
     public static function providerCompareTo(): array
