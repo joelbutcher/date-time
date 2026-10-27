@@ -7,6 +7,7 @@ namespace Brick\DateTime\Tests;
 use Brick\DateTime\DateTimeException;
 use Brick\DateTime\Duration;
 use Brick\DateTime\Instant;
+use Brick\DateTime\Parser\DateTimeParseException;
 use Brick\DateTime\TimeZone;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -571,6 +572,43 @@ class InstantTest extends AbstractTestCase
             [123456789, 10000000, '123456789.01'],
             [123456789, 100000000, '123456789.1'],
             [123456789, 550000000, '123456789.55'],
+        ];
+    }
+
+    #[DataProvider('providerParse')]
+    public function testParse(string $text, int $expectedSeconds, int $expectedNanos): void
+    {
+        self::assertInstantIs($expectedSeconds, $expectedNanos, Instant::parse($text));
+    }
+
+    public static function providerParse(): array
+    {
+        return [
+            ['1970-01-01T00:00Z', 0, 0],
+            ['2001-09-09T01:46:40Z', 1000000000, 0],
+            ['2001-09-09T01:46:40.123456789z', 1000000000, 123456789],
+            ['2001-09-09T03:46:40+02:00', 1000000000, 0],
+            ['2001-09-08T20:16:40.5-05:30', 1000000000, 500000000],
+            ['1969-12-31T23:59:59.999999999Z', -1, 999999999],
+        ];
+    }
+
+    #[DataProvider('providerParseInvalidStringThrowsException')]
+    public function testParseInvalidStringThrowsException(string $text): void
+    {
+        $this->expectException(DateTimeParseException::class);
+        Instant::parse($text);
+    }
+
+    public static function providerParseInvalidStringThrowsException(): array
+    {
+        return [
+            [''],
+            ['2001-09-09'],
+            ['2001-09-09T01:46:40'],
+            ['2001-09-09T01:46:40Z[Europe/London]'],
+            [' 2001-09-09T01:46:40Z'],
+            ['2001-09-09T01:46:40Z '],
         ];
     }
 
